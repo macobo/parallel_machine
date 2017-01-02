@@ -1,0 +1,22 @@
+{
+  "name": "parallel_machine",
+  "version": "0.0.1",
+  "description": "Javascript library for distributing tasks over many keys, limiting parallelism for each.",
+  "keywords": [
+    "async",
+    "tasks",
+    "queue",
+    "typescript"
+  ],
+  "author": "Karl-Aksel Puulmann",
+  "license": "MIT",
+  "typescript": {
+    "definition": "parallel_machine.d.ts"
+  },
+  "devDependencies": {
+    "mocha": "^3.2.0",
+    "tsd": "^0.6.5",
+    "tslint": "^4.2.0",
+    "typescript": "^2.1.4"
+  }
+}
