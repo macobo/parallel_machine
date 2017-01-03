@@ -31,3 +31,5 @@ build
 *.d.ts
 *.js
 typings
+
+.vscode

@@ -13,6 +13,9 @@
   "typescript": {
     "definition": "parallel_machine.d.ts"
   },
+  "dependencies": {
+    "lodash": "^4.17.4"
+  },
   "devDependencies": {
     "mocha": "^3.2.0",
     "tsd": "^0.6.5",
