@@ -101,4 +101,15 @@ describe("TaskQueue<TaskType>", () => {
 
         expect(queue.tracker.running).to.eql(["a:2", "a:3"]);
     });
+
+    it("should respect `NO_LIMIT` `overallParallelism`", () => {
+        queue = new TestQueue(1, TaskQueue.NO_LIMIT);
+
+        for (let letter of "abcdefghijklmnopqrst") {
+            queue.add(`${letter}:${letter}`);
+        }
+
+        expect(queue.tracker.enqueued).to.have.lengthOf(0);
+        expect(queue.tracker.running).to.have.lengthOf(20);
+    });
 });
