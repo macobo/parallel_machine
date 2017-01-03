@@ -1,7 +1,7 @@
 import { TaskDescriptor, TaskExecutor } from "./common";
 import { AsyncTaskQueue, ProgressTracker, TaskQueue } from "./queue";
 
-export interface IParallelMachineOptions<T> {
+interface IParallelMachineOptions<T> {
     // Function which for each task returns it's key (i.e. hostname)
     taskDescriptor: TaskDescriptor<T>;
     // Async function that executes an action on the target task, calling back once done.
@@ -13,7 +13,7 @@ export interface IParallelMachineOptions<T> {
     progressTracker?: ProgressTracker<T>;
 }
 
-export function parallel_execute<T>(
+export default function parallel_machine<T>(
     tasks: T[],
     options: IParallelMachineOptions<T>,
     callback: (error: Error) => void,
@@ -30,5 +30,3 @@ export function parallel_execute<T>(
 
     queue.run();
 }
-
-export default parallel_execute;
