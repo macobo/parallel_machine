@@ -77,4 +77,65 @@ describe("parallel_machine", () => {
             });
         });
     });
+
+    describe("Random fuzz tests", () => {
+        const mod5 = (n: number) => (n % 5).toString()
+
+        it("success case, with data", (done) => {
+            const perLetterParallelism = 3;
+            const overallParallelism = 10;
+
+            const counts: {[name: string]: number} = {};
+            let underWay = 0;
+
+            const executor: TaskExecutor<number> = (index: number, callback: Callback) => {
+                counts[index] = counts[index] || 0;
+                expect(++underWay).to.be.most(overallParallelism);
+                expect(++counts[index]).to.be.most(perLetterParallelism);
+
+                setTimeout(() => {
+                    counts[index]--;
+                    underWay--;
+                    callback();
+                }, _.random(3, 100));
+            };
+
+            parallel_machine(_.range(0, 100), {
+                keyParallelism: perLetterParallelism,
+                overallParallelism,
+                executor,
+                taskDescriptor: mod5,
+            }, done);
+        });
+
+        it("should fail fast", (done) => {
+            const testError = new Error("Done");
+            let started = 0;
+            let finished = 0;
+
+            const executor: TaskExecutor<number> = (index: number, callback: Callback) => {
+                if (index === 10) {
+                    callback(testError);
+                } else {
+                    started++;
+                    setTimeout(() => {
+                        finished++;
+                        callback();
+                    }, 100);
+                }
+            };
+
+            parallel_machine(_.range(0, 100), {
+                keyParallelism: 2,
+                overallParallelism: 5,
+                executor,
+                taskDescriptor: mod5,
+            }, (error: Error) => {
+                expect(error).to.eql(testError);
+                expect(started).to.eql(10);
+                expect(finished).to.be.lessThan(10);
+                done();
+            });
+        });
+    });
 });

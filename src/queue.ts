@@ -99,7 +99,6 @@ export abstract class TaskQueue<TaskType> {
 
     markTaskComplete(task: TaskType, error?: Error): void {
         const key = this.taskToKey(task);
-
         const result: ITaskCompletion<TaskType> = { task, error };
 
         this.runningCount[key] -= 1;
