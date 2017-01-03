@@ -78,18 +78,36 @@ export abstract class TaskQueue<TaskType> {
         const key: string = this.taskToKey(task);
         this.tracker.enqueueTask(task);
 
-        if (!_.has(this.enqueuedTasks, key)) {
-            this.enqueuedTasks[key] = [];
+        if (!this.availableKeys.has(key) && this.canStartTaskForKey(key)) {
             this.availableKeys.add(key);
+            // :TRICKY: The key might have been removed from available keys by a previous `taskStart`
+            //    even while tasks were enqueued for it.
+            this.enqueuedTasks[key] = this.enqueuedTasks[key] || [];
         }
         this.enqueuedTasks[key].push(task);
         if (this.isStarted)
             this.startAvailableTasks();
     }
 
+    markTaskComplete(key: string, task: TaskType, error: Error): void {
+        const result: ITaskCompletion<TaskType> = { task };
+
+        this.runningCount[key] -= 1;
+        if (!this.availableKeys.has(key) && this.canStartTaskForKey(key)) {
+            this.availableKeys.add(key);
+        }
+        this.tracker.completeTask(result);
+        this.startAvailableTasks();
+
+        // this.checkTaskDepletion();
+    }
+
     protected dequeue(): {task: TaskType, key: string} | QUEUE_DRAINED | REACHED_PARALLELISM_LIMIT {
         if (this.tracker.numRunningTasks >= this.overallParallelism) {
             return REACHED_PARALLELISM_LIMIT;
+        }
+        if (this.tracker.numEnqueuedTasks === 0) {
+            return QUEUE_DRAINED;
         }
         // No keys have enough parallelism.
         if (this.availableKeys.size === 0) {
@@ -103,7 +121,7 @@ export abstract class TaskQueue<TaskType> {
         const key: string = <string> (nextKeyIter.value);
         const task: TaskType | undefined = this.enqueuedTasks[key].pop();
         if (task === undefined) {
-            // If we have done all tasks for this key, it"s safe to delete it and attempt to dequeue again.
+            // If we have done all tasks for this key, it's safe to delete it and attempt to dequeue again.
             this.availableKeys.delete(key);
             return this.dequeue();
         }
@@ -119,19 +137,6 @@ export abstract class TaskQueue<TaskType> {
         this.executeTask(key, task);
     }
 
-    markTaskComplete(key: string, task: TaskType, error: Error): void {
-        const result: ITaskCompletion<TaskType> = { task };
-
-        this.runningCount[key] -= 1;
-        if (!this.availableKeys.has(key) && this.keyParallelism > 0 && this.runningCount[key] >= this.keyParallelism) {
-            this.availableKeys.add(key);
-        }
-        this.tracker.completeTask(result);
-        this.startAvailableTasks();
-
-        // this.checkTaskDepletion();
-    }
-
     protected startAvailableTasks(): void {
         while (true) {
             const taskResult = this.dequeue();
@@ -145,6 +150,10 @@ export abstract class TaskQueue<TaskType> {
         this.isStarted = true;
         this.startAvailableTasks();
         // this.checkTaskDepletion();
+    }
+
+    private canStartTaskForKey(key: string): boolean {
+      return (this.runningCount[key] || 0) < this.keyParallelism;
     }
 }
 
