@@ -1,4 +1,5 @@
 # parallel_machine
+[![Build Status](https://travis-ci.org/macobo/parallel_machine.svg?branch=master)](https://travis-ci.org/macobo/parallel_machine)
 
 Javascript library for distributing async computation based on a distribution key.
 
