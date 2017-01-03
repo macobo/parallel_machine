@@ -1,5 +1,6 @@
 import { Set } from "core-js/library";
 import _ = require("lodash");
+import { Queue } from "typescript-collections";
 
 import { QUEUE_DRAINED, REACHED_PARALLELISM_LIMIT, TaskDescriptor, TaskExecutor } from "./common";
 
@@ -47,7 +48,7 @@ export abstract class TaskQueue<TaskType> {
     isStarted: boolean;
     hasQuitAfterError: boolean;
 
-    private enqueuedTasks: {[key: string]: TaskType[]};
+    private enqueuedTasks: {[key: string]: Queue<TaskType>};
     private runningCount: {[key: string]: number};
     private availableKeys: Set<string>;
     private drainCallback: (error?: Error) => void;
@@ -85,9 +86,9 @@ export abstract class TaskQueue<TaskType> {
             this.availableKeys.add(key);
             // :TRICKY: The key might have been removed from available keys by a previous `taskStart`
             //    even while tasks were enqueued for it.
-            this.enqueuedTasks[key] = this.enqueuedTasks[key] || [];
+            this.enqueuedTasks[key] = this.enqueuedTasks[key] || new Queue<TaskType>();
         }
-        this.enqueuedTasks[key].push(task);
+        this.enqueuedTasks[key].enqueue(task);
         if (this.isStarted)
             this.startAvailableTasks();
     }
@@ -134,7 +135,7 @@ export abstract class TaskQueue<TaskType> {
             return QUEUE_DRAINED;
 
         const key: string = <string> (nextKeyIter.value);
-        const task: TaskType | undefined = this.enqueuedTasks[key].pop();
+        const task: TaskType | undefined = this.enqueuedTasks[key].dequeue();
         if (task === undefined) {
             // If we have done all tasks for this key, it's safe to delete it and attempt to dequeue again.
             this.availableKeys.delete(key);

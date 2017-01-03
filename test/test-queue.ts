@@ -144,9 +144,9 @@ describe("TaskQueue<TaskType>", () => {
         queue.addAll(["a:1", "a:2", "a:3"]);
         queue.run();
 
-        queue.markTaskComplete("a:3");
-        queue.markTaskComplete("a:2");
         queue.markTaskComplete("a:1");
+        queue.markTaskComplete("a:2");
+        queue.markTaskComplete("a:3");
     });
 
     it("should call onDrain once when a task finishes with an error", (done) => {
@@ -163,7 +163,7 @@ describe("TaskQueue<TaskType>", () => {
         queue.addAll(["a:1", "a:2", "a:3"]);
         queue.run();
 
-        queue.markTaskComplete("a:3");
+        queue.markTaskComplete("a:1");
         queue.markTaskComplete("a:2", testError);
     });
 });
