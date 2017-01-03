@@ -1,17 +1,11 @@
 import { Set } from "core-js/library";
 import _ = require("lodash");
 
+import { QUEUE_DRAINED, REACHED_PARALLELISM_LIMIT, TaskExecutor, TaskDescriptor } from "./common";
+
 export interface ITaskCompletion<T> {
     task: T;
 }
-
-type TaskExecutor<T> = (task: T, callback: (Error?: any) => void) => void;
-
-const REACHED_PARALLELISM_LIMIT = "parallelism_limit";
-type REACHED_PARALLELISM_LIMIT = "parallelism_limit";
-
-const QUEUE_DRAINED = "queue_drained";
-type QUEUE_DRAINED = "queue_drained";
 
 export class ProgressTracker<T> {
     numTotalTasks: number;
@@ -45,7 +39,7 @@ export class ProgressTracker<T> {
 export abstract class TaskQueue<TaskType> {
     static NO_LIMIT = null;
 
-    taskToKey: (task: TaskType) => string;
+    taskToKey: TaskDescriptor<TaskType>;
     keyParallelism: number;
     overallParallelism: number | null;
     tracker: ProgressTracker<TaskType>;
@@ -56,7 +50,7 @@ export abstract class TaskQueue<TaskType> {
     private availableKeys: Set<string>;
 
     constructor(
-        taskToKey: (task: TaskType) => string,
+        taskToKey: TaskDescriptor<TaskType>,
         keyParallelism: number,
         overallParallelism: number | null = TaskQueue.NO_LIMIT,
         progressTracker: ProgressTracker<TaskType> = new ProgressTracker(),
@@ -87,6 +81,11 @@ export abstract class TaskQueue<TaskType> {
         this.enqueuedTasks[key].push(task);
         if (this.isStarted)
             this.startAvailableTasks();
+    }
+
+    addAll(tasks: TaskType[]): void {
+        for (let task of tasks)
+            this.add(task);
     }
 
     markTaskComplete(task: TaskType, error?: Error): void {
@@ -160,11 +159,11 @@ export abstract class TaskQueue<TaskType> {
     }
 }
 
-class AsyncTaskQueue<TaskType> extends TaskQueue<TaskType> {
+export class AsyncTaskQueue<TaskType> extends TaskQueue<TaskType> {
     executor: TaskExecutor<TaskType>;
 
     constructor(
-        taskToKey: (task: TaskType) => string,
+        taskToKey: TaskDescriptor<TaskType>,
         executor: TaskExecutor<TaskType>,
         keyParallelism: number,
         overallParallelism: number | null = TaskQueue.NO_LIMIT,
