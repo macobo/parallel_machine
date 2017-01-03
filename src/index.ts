@@ -26,7 +26,7 @@ export function parallel_execute<T>(
         options.progressTracker,
     );
     queue.addAll(tasks);
-    // queue.onDrain = callback;
+    queue.onDrain = callback;
 
     queue.run();
 }

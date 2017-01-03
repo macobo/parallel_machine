@@ -126,4 +126,28 @@ describe("TaskQueue<TaskType>", () => {
         expect(queue.tracker.enqueued).to.have.lengthOf(0);
         expect(queue.tracker.running).to.have.lengthOf(20);
     });
+
+    it("should call onDrain when running an empty queue", (done) => {
+        queue = new TestQueue(1, 1);
+        queue.onDrain = done;
+        queue.run();
+    });
+
+    it("should call onDrain when all tasks are completed", (done) => {
+        queue = new TestQueue(1, 1);
+        queue.onDrain = (error?: Error) => {
+            expect(error).to.be.undefined;
+            expect(queue.tracker.numTasksCompleted).to.eql(3);
+            done();
+        };
+
+        queue.addAll(["a:1", "a:2", "a:3"]);
+        queue.run();
+
+        queue.markTaskComplete("a:3");
+        queue.markTaskComplete("a:2");
+        queue.markTaskComplete("a:1");
+    });
+
+    it("should call onDrain once when a task finishes with an error")
 });

@@ -44,10 +44,12 @@ export abstract class TaskQueue<TaskType> {
     overallParallelism: number | null;
     tracker: ProgressTracker<TaskType>;
     isStarted: boolean;
+    isFinished: boolean;
 
     private enqueuedTasks: {[key: string]: TaskType[]};
     private runningCount: {[key: string]: number};
     private availableKeys: Set<string>;
+    private drainCallback: (error?: Error) => void;
 
     constructor(
         taskToKey: TaskDescriptor<TaskType>,
@@ -61,12 +63,18 @@ export abstract class TaskQueue<TaskType> {
         this.tracker = progressTracker;
 
         this.isStarted = false;
+        this.isFinished = false;
         this.runningCount = {};
         this.enqueuedTasks = {};
         this.availableKeys = new Set<string>();
+        this.drainCallback = _.identity;
     }
 
     abstract executeTask(key: string, task: TaskType): void
+
+    set onDrain(callback: (error?: Error) => void) {
+        this.drainCallback = callback;
+    }
 
     add(task: TaskType): void {
         const key: string = this.taskToKey(task);
@@ -100,7 +108,7 @@ export abstract class TaskQueue<TaskType> {
         this.tracker.completeTask(result);
         this.startAvailableTasks();
 
-        // this.checkTaskDepletion();
+        this.checkTaskDepletion();
     }
 
     protected dequeue(): {task: TaskType, key: string} | QUEUE_DRAINED | REACHED_PARALLELISM_LIMIT {
@@ -141,7 +149,6 @@ export abstract class TaskQueue<TaskType> {
     protected startAvailableTasks(): void {
         while (true) {
             const taskResult = this.dequeue();
-            console.log({taskResult});
             if (taskResult === REACHED_PARALLELISM_LIMIT || taskResult === QUEUE_DRAINED)
                 break;
             this.startTask(taskResult.key, taskResult.task);
@@ -151,11 +158,17 @@ export abstract class TaskQueue<TaskType> {
     run(): void {
         this.isStarted = true;
         this.startAvailableTasks();
-        // this.checkTaskDepletion();
+        this.checkTaskDepletion();
     }
 
     private canStartTaskForKey(key: string): boolean {
       return (this.runningCount[key] || 0) < this.keyParallelism;
+    }
+
+    private checkTaskDepletion(): void {
+        if (this.tracker.numTasksCompleted === this.tracker.numTotalTasks) {
+            this.drainCallback();
+        }
     }
 }
 
