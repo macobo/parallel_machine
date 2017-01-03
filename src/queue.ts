@@ -1,10 +1,11 @@
 import { Set } from "core-js/library";
 import _ = require("lodash");
 
-import { QUEUE_DRAINED, REACHED_PARALLELISM_LIMIT, TaskExecutor, TaskDescriptor } from "./common";
+import { QUEUE_DRAINED, REACHED_PARALLELISM_LIMIT, TaskDescriptor, TaskExecutor } from "./common";
 
 export interface ITaskCompletion<T> {
     task: T;
+    error: Error | undefined;
 }
 
 export class ProgressTracker<T> {
@@ -44,7 +45,7 @@ export abstract class TaskQueue<TaskType> {
     overallParallelism: number | null;
     tracker: ProgressTracker<TaskType>;
     isStarted: boolean;
-    isFinished: boolean;
+    hasQuitAfterError: boolean;
 
     private enqueuedTasks: {[key: string]: TaskType[]};
     private runningCount: {[key: string]: number};
@@ -63,7 +64,7 @@ export abstract class TaskQueue<TaskType> {
         this.tracker = progressTracker;
 
         this.isStarted = false;
-        this.isFinished = false;
+        this.hasQuitAfterError = false;
         this.runningCount = {};
         this.enqueuedTasks = {};
         this.availableKeys = new Set<string>();
@@ -99,15 +100,21 @@ export abstract class TaskQueue<TaskType> {
     markTaskComplete(task: TaskType, error?: Error): void {
         const key = this.taskToKey(task);
 
-        const result: ITaskCompletion<TaskType> = { task };
+        const result: ITaskCompletion<TaskType> = { task, error };
 
         this.runningCount[key] -= 1;
         if (!this.availableKeys.has(key) && this.canStartTaskForKey(key)) {
             this.availableKeys.add(key);
         }
-        this.tracker.completeTask(result);
-        this.startAvailableTasks();
 
+        this.tracker.completeTask(result);
+
+        if (error && !this.hasQuitAfterError) {
+            this.hasQuitAfterError = true;
+            this.drainCallback(error);
+        }
+
+        this.startAvailableTasks();
         this.checkTaskDepletion();
     }
 
@@ -147,7 +154,7 @@ export abstract class TaskQueue<TaskType> {
     }
 
     protected startAvailableTasks(): void {
-        while (true) {
+        while (!this.hasQuitAfterError) {
             const taskResult = this.dequeue();
             if (taskResult === REACHED_PARALLELISM_LIMIT || taskResult === QUEUE_DRAINED)
                 break;
@@ -166,7 +173,7 @@ export abstract class TaskQueue<TaskType> {
     }
 
     private checkTaskDepletion(): void {
-        if (this.tracker.numTasksCompleted === this.tracker.numTotalTasks) {
+        if (!this.hasQuitAfterError && this.tracker.numTasksCompleted === this.tracker.numTotalTasks) {
             this.drainCallback();
         }
     }

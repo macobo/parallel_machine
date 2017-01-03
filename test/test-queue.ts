@@ -149,5 +149,21 @@ describe("TaskQueue<TaskType>", () => {
         queue.markTaskComplete("a:1");
     });
 
-    it("should call onDrain once when a task finishes with an error")
+    it("should call onDrain once when a task finishes with an error", (done) => {
+        const testError = new Error("foobar");
+
+        queue = new TestQueue(1, 1);
+        queue.onDrain = (error?: Error) => {
+            expect(error).to.eql(testError);
+            expect(queue.tracker.numTasksCompleted).to.eql(2);
+            expect(queue.tracker.enqueued).to.have.lengthOf(1);
+            done();
+        };
+
+        queue.addAll(["a:1", "a:2", "a:3"]);
+        queue.run();
+
+        queue.markTaskComplete("a:3");
+        queue.markTaskComplete("a:2", testError);
+    });
 });
