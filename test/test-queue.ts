@@ -102,6 +102,19 @@ describe("TaskQueue<TaskType>", () => {
         expect(queue.tracker.running).to.eql(["a:2", "a:3"]);
     });
 
+    it("should allow finishing all tasks without problems", () => {
+        const tasks = ["a:1", "b:2", "c:3", "d:4", "a:5", "a:6"];
+        for (let task of tasks) {
+            queue.add(task);
+        }
+        const completeOrder = tasks.slice(0, 3).reverse().concat(tasks.slice(3));
+        for (let task of completeOrder) {
+            expect(queue.tracker.running.length).to.be.greaterThan(0);
+            queue.markTaskComplete(task);
+        }
+        expect(queue.tracker.complete).to.have.lengthOf(tasks.length);
+    });
+
     it("should respect `NO_LIMIT` `overallParallelism`", () => {
         queue = new TestQueue(1, TaskQueue.NO_LIMIT);
         queue.run();
