@@ -1,5 +1,6 @@
 # parallel_machine
 [![Build Status](https://travis-ci.org/macobo/parallel_machine.svg?branch=master)](https://travis-ci.org/macobo/parallel_machine)
+[![NPM version][npm-image]][npm-url] 
 
 Javascript library for distributing async computation based on a distribution key.
 
@@ -39,3 +40,7 @@ parallel_machine(tables, options, (err) => {
   console.log('Tasks complete.', err);
 });
 ```
+
+
+[npm-url]: https://npmjs.org/package/parallel_machine
+[npm-image]: http://img.shields.io/npm/v/parallel_machine.svg
