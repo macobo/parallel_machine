@@ -13,7 +13,7 @@ Scenario: we want to run an expensive database migration across many tables in a
 To avoid bringing down any single database, we try to distribute the load across all the database clusters via parallel_machine
 
 ```javascript
-import * as parallel_machine from "parallel_machine";
+var parallel_machine = require("parallel_machine");
 
 tables = [
   {databaseHost: 'a', tableName: 'foo'}

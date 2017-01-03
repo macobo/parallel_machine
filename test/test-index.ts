@@ -1,8 +1,8 @@
 import { expect } from "chai";
-import _ = require("lodash");
+import * as _ from "lodash";
 import "mocha";
 
-import parallel_machine from "../src";
+import parallel_machine = require("../src");
 import { TaskDescriptor, TaskExecutor } from "../src/common";
 
 type Callback = (err?: Error) => void;

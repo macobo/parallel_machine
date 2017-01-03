@@ -10,8 +10,8 @@
   ],
   "author": "Karl-Aksel Puulmann",
   "license": "MIT",
-  "main": "src/index.js",
-  "typings": "src/index.d.ts",
+  "main": "build/src/index.js",
+  "typings": "build/src/index.d.ts",
   "typescript": {
     "definition": "parallel_machine.d.ts"
   },

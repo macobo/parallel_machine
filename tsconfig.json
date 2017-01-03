@@ -5,6 +5,7 @@
         "noImplicitAny": true,
         "strictNullChecks": true,
         "sourceMap": true,
+        "outDir": "build",
         "listFiles": true,
         "declaration": true
     }
