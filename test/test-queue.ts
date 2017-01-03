@@ -104,6 +104,7 @@ describe("TaskQueue<TaskType>", () => {
 
     it("should respect `NO_LIMIT` `overallParallelism`", () => {
         queue = new TestQueue(1, TaskQueue.NO_LIMIT);
+        queue.run();
 
         for (let letter of "abcdefghijklmnopqrst") {
             queue.add(`${letter}:${letter}`);

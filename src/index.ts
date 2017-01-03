@@ -105,7 +105,7 @@ export abstract class TaskQueue<TaskType> {
     }
 
     protected dequeue(): {task: TaskType, key: string} | QUEUE_DRAINED | REACHED_PARALLELISM_LIMIT {
-        if (this.tracker.numRunningTasks >= this.overallParallelism) {
+        if (this.overallParallelism !== TaskQueue.NO_LIMIT && this.tracker.numRunningTasks >= this.overallParallelism) {
             return REACHED_PARALLELISM_LIMIT;
         }
         if (this.tracker.numEnqueuedTasks === 0) {
@@ -133,7 +133,7 @@ export abstract class TaskQueue<TaskType> {
     protected startTask(key: string, task: TaskType): void {
         this.tracker.startTask(task);
         this.runningCount[key] = (this.runningCount[key] || 0) + 1;
-        if (this.keyParallelism > 0 && this.runningCount[key] >= this.keyParallelism) {
+        if (!this.canStartTaskForKey(key)) {
             this.availableKeys.delete(key);
         }
         this.executeTask(key, task);
