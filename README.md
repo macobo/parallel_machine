@@ -1,6 +1,6 @@
 # parallel_machine
 
-Javascript library for distributing async computation over a based on a distribution key.
+Javascript library for distributing async computation based on a distribution key.
 
 # Installation
 
