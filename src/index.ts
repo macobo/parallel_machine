@@ -8,7 +8,7 @@ export interface IParallelMachineOptions<T> {
     executor: TaskExecutor<T>;
     // Up to how many tasks for a given `key` to execute at a time.
     keyParallelism: number;
-    // How many tasks to execute overall. Null means unlimited.
+    // How many tasks to execute overall. Null or missing means unlimited.
     overallParallelism?: number | null;
     progressTracker?: ProgressTracker<T>;
 }
