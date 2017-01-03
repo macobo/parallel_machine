@@ -100,7 +100,7 @@ export abstract class TaskQueue<TaskType> {
         if (nextKeyIter.done)
             return QUEUE_DRAINED;
 
-        const key: string = <string>(nextKeyIter.value);
+        const key: string = <string> (nextKeyIter.value);
         const task: TaskType | undefined = this.enqueuedTasks[key].pop();
         if (task === undefined) {
             // If we have done all tasks for this key, it"s safe to delete it and attempt to dequeue again.
@@ -116,6 +116,7 @@ export abstract class TaskQueue<TaskType> {
         if (this.keyParallelism > 0 && this.runningCount[key] >= this.keyParallelism) {
             this.availableKeys.delete(key);
         }
+        this.executeTask(key, task);
     }
 
     markTaskComplete(key: string, task: TaskType, error: Error): void {

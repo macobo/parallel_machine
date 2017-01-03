@@ -26,14 +26,14 @@ class FullProgressTracker extends ProgressTracker<string> {
         expect(this.enqueued).to.contain(task);
 
         this.running.push(task);
-        _.remove(this.enqueued, task);
+        this.enqueued = _.remove(this.enqueued, task);
     }
 
     completeTask(result: ITaskCompletion<string>) {
         super.completeTask(result);
         expect(this.running).to.contain(result.task);
         this.complete.push(result);
-        _.remove(this.running, result.task);
+        this.running = _.remove(this.running, result.task);
     }
 }
 
@@ -66,6 +66,7 @@ describe("TaskQueue<TaskType>", () => {
         queue.add("a:1");
         queue.add("a:2");
 
-        expect(queue.tracker.enqueued).to.eql(["a:1", "a:2"]);
+        expect(queue.tracker.enqueued).to.eql([]);
+        expect(queue.tracker.running).to.eql(["a:1", "a:2"]);
     });
 });
