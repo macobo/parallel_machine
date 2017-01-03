@@ -142,6 +142,7 @@ export abstract class TaskQueue<TaskType> {
     protected startAvailableTasks(): void {
         while (true) {
             const taskResult = this.dequeue();
+            console.log({taskResult});
             if (taskResult === REACHED_PARALLELISM_LIMIT || taskResult === QUEUE_DRAINED)
                 break;
             this.startTask(taskResult.key, taskResult.task);

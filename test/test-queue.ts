@@ -2,7 +2,7 @@ import { expect } from "chai";
 import _ = require("lodash");
 import "mocha";
 
-import { ITaskCompletion, ProgressTracker, TaskQueue } from "../src";
+import { ITaskCompletion, ProgressTracker, TaskQueue } from "../src/queue";
 
 class FullProgressTracker extends ProgressTracker<string> {
     enqueued: string[];
