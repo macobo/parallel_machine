@@ -10,6 +10,8 @@
   ],
   "author": "Karl-Aksel Puulmann",
   "license": "MIT",
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
   "typescript": {
     "definition": "parallel_machine.d.ts"
   },
@@ -22,8 +24,13 @@
     "babel-register": "^6.18.0",
     "chai": "^3.5.0",
     "mocha": "^3.2.0",
+    "source-map-support": "^0.4.8",
     "tslint": "^4.2.0",
     "typescript": "^2.1.4",
     "typings": "^2.1.0"
+  },
+  "scripts": {
+    "build": "rm -rf build/ && ./node_modules/.bin/tsc",
+    "test": "npm run build && ./node_modules/.bin/mocha"
   }
 }

@@ -29,6 +29,7 @@ node_modules
 # Artifacts
 build
 *.d.ts
+*.js.map
 *.js
 typings
 
