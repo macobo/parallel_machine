@@ -89,7 +89,9 @@ export abstract class TaskQueue<TaskType> {
             this.startAvailableTasks();
     }
 
-    markTaskComplete(key: string, task: TaskType, error: Error): void {
+    markTaskComplete(task: TaskType, error?: Error): void {
+        const key = this.taskToKey(task);
+
         const result: ITaskCompletion<TaskType> = { task };
 
         this.runningCount[key] -= 1;
@@ -172,8 +174,8 @@ class AsyncTaskQueue<TaskType> extends TaskQueue<TaskType> {
     }
 
     executeTask(key: string, task: TaskType): void {
-        this.executor(task, (error) => {
-            this.markTaskComplete(key, task, error);
+        this.executor(task, (error: Error | undefined) => {
+            this.markTaskComplete(task, error);
         });
     }
 }
