@@ -7,9 +7,9 @@ Javascript library for distributing async computation based on a distribution ke
 
 `npm install parallel_machine`
 
-# Example:
+# Example
 
-Scenario: we want to run an expensive database migration across many tables in a large database cluster. 
+Scenario: we want to run an expensive database migration across many tables in a large database cluster.
 To avoid bringing down any single database, we try to distribute the load across all the database clusters via parallel_machine
 
 ```javascript
