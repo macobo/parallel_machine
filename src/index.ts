@@ -1,6 +1,7 @@
+import { Set } from "core-js/library";
 import _ = require("lodash");
 
-interface ITaskCompletion<T> {
+export interface ITaskCompletion<T> {
     task: T;
 }
 
@@ -12,7 +13,7 @@ type REACHED_PARALLELISM_LIMIT = "parallelism_limit";
 const QUEUE_DRAINED = "queue_drained";
 type QUEUE_DRAINED = "queue_drained";
 
-class ProgressTracker<T> {
+export class ProgressTracker<T> {
     numTotalTasks: number;
     numEnqueuedTasks: number;
     numTasksCompleted: number;
@@ -41,7 +42,7 @@ class ProgressTracker<T> {
     }
 }
 
-abstract class TaskQueue<TaskType> {
+export abstract class TaskQueue<TaskType> {
     static NO_LIMIT = null;
 
     taskToKey: (task: TaskType) => string;
@@ -67,7 +68,7 @@ abstract class TaskQueue<TaskType> {
 
         this.isStarted = false;
         this.enqueuedTasks = {};
-        this.availableKeys = new Set();
+        this.availableKeys = new Set<string>();
     }
 
     abstract executeTask(key: string, task: TaskType): void
@@ -94,11 +95,11 @@ abstract class TaskQueue<TaskType> {
             return REACHED_PARALLELISM_LIMIT;
         }
         const keys = this.availableKeys.values();
-        const nextKeyIter = this.availableKeys.values().next();
+        const nextKeyIter: IteratorResult<string> = this.availableKeys.values().next();
         if (nextKeyIter.done)
             return QUEUE_DRAINED;
 
-        const key: string = nextKeyIter.value;
+        const key: string = <string>(nextKeyIter.value);
         const task: TaskType | undefined = this.enqueuedTasks[key].pop();
         if (task === undefined) {
             // If we have done all tasks for this key, it"s safe to delete it and attempt to dequeue again.

@@ -1,9 +1,11 @@
 {
   "name": "parallel_machine",
   "dependencies": {
+    "chai": "registry:npm/chai#3.5.0+20160723033700",
     "lodash": "registry:npm/lodash#4.0.0+20161015015725"
   },
   "globalDependencies": {
+    "core-js": "registry:dt/core-js#0.9.7+20161130133742",
     "mocha": "registry:dt/mocha#2.2.5+20161221010438"
   }
 }

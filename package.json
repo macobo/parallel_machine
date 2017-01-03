@@ -14,9 +14,12 @@
     "definition": "parallel_machine.d.ts"
   },
   "dependencies": {
+    "core-js": "^2.4.1",
     "lodash": "^4.17.4"
   },
   "devDependencies": {
+    "babel-register": "^6.18.0",
+    "chai": "^3.5.0",
     "mocha": "^3.2.0",
     "tslint": "^4.2.0",
     "typescript": "^2.1.4",
