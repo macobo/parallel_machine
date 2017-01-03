@@ -1,0 +1,15 @@
+{
+    "extends": "tslint:latest",
+    "rules": {
+        "curly": false,
+        "max-classes-per-file": [false],
+        "member-access": [false],
+        "member-ordering": [
+            true,
+            "public-before-private",
+            "static-before-instance",
+            "variables-before-functions"
+        ]
+
+    }
+}

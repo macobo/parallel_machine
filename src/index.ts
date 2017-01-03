@@ -1,16 +1,16 @@
-import _ = require('lodash');
+import _ = require("lodash");
 
-interface TaskCompletion<T> {
+interface ITaskCompletion<T> {
     task: T;
 }
 
 type TaskExecutor<T> = (task: T, callback: (Error?: any) => void) => void;
 
-const REACHED_PARALLELISM_LIMIT = 'parallelism_limit'
-type REACHED_PARALLELISM_LIMIT = 'parallelism_limit'
+const REACHED_PARALLELISM_LIMIT = "parallelism_limit";
+type REACHED_PARALLELISM_LIMIT = "parallelism_limit";
 
-const QUEUE_DRAINED = 'queue_drained'
-type QUEUE_DRAINED = 'queue_drained'
+const QUEUE_DRAINED = "queue_drained";
+type QUEUE_DRAINED = "queue_drained";
 
 class ProgressTracker<T> {
     numTotalTasks: number;
@@ -35,9 +35,9 @@ class ProgressTracker<T> {
         this.numEnqueuedTasks -= 1;
     }
 
-    completeTask(result: TaskCompletion<T>) {
-        this.numRunningTasks -= 1
-        this.numTasksCompleted += 1
+    completeTask(result: ITaskCompletion<T>) {
+        this.numRunningTasks -= 1;
+        this.numTasksCompleted += 1;
     }
 }
 
@@ -50,7 +50,7 @@ abstract class TaskQueue<TaskType> {
     tracker: ProgressTracker<TaskType>;
     isStarted: boolean;
 
-    private enqueuedTasks: {[key: string]: Array<TaskType>};
+    private enqueuedTasks: {[key: string]: TaskType[]};
     private runningCount: {[key: string]: number};
     private availableKeys: Set<string>;
 
@@ -58,7 +58,7 @@ abstract class TaskQueue<TaskType> {
         taskToKey: (task: TaskType) => string,
         keyParallelism: number,
         overallParallelism: number | null = TaskQueue.NO_LIMIT,
-        progressTracker: ProgressTracker<TaskType> = new ProgressTracker()
+        progressTracker: ProgressTracker<TaskType> = new ProgressTracker(),
     ) {
         this.taskToKey = taskToKey;
         this.keyParallelism = keyParallelism;
@@ -78,7 +78,7 @@ abstract class TaskQueue<TaskType> {
 
         if (!_.has(this.enqueuedTasks, key)) {
             this.enqueuedTasks[key] = [];
-            this.availableKeys.add(key)
+            this.availableKeys.add(key);
         }
         this.enqueuedTasks[key].push(task);
         if (this.isStarted)
@@ -90,7 +90,7 @@ abstract class TaskQueue<TaskType> {
             return REACHED_PARALLELISM_LIMIT;
         }
         // No keys have enough parallelism.
-        if (this.availableKeys.size == 0) {
+        if (this.availableKeys.size === 0) {
             return REACHED_PARALLELISM_LIMIT;
         }
         const keys = this.availableKeys.values();
@@ -98,14 +98,14 @@ abstract class TaskQueue<TaskType> {
         if (nextKeyIter.done)
             return QUEUE_DRAINED;
 
-        const key: string = nextKeyIter.value
-        const task: TaskType | undefined = this.enqueuedTasks[key].pop()
-        if (task == undefined) {
-            // If we have done all tasks for this key, it's safe to delete it and attempt to dequeue again.
+        const key: string = nextKeyIter.value;
+        const task: TaskType | undefined = this.enqueuedTasks[key].pop();
+        if (task === undefined) {
+            // If we have done all tasks for this key, it"s safe to delete it and attempt to dequeue again.
             this.availableKeys.delete(key);
             return this.dequeue();
         }
-        return {task: task, key: key};
+        return {task, key};
     }
 
     protected startTask(key: string, task: TaskType): void {
@@ -117,7 +117,7 @@ abstract class TaskQueue<TaskType> {
     }
 
     markTaskComplete(key: string, task: TaskType, error: Error): void {
-        const result: TaskCompletion<TaskType> = { task: task };
+        const result: ITaskCompletion<TaskType> = { task };
 
         this.runningCount[key] -= 1;
         if (!this.availableKeys.has(key) && this.keyParallelism > 0 && this.runningCount[key] >= this.keyParallelism) {
@@ -132,7 +132,7 @@ abstract class TaskQueue<TaskType> {
     protected startAvailableTasks(): void {
         while (true) {
             const taskResult = this.dequeue();
-            if (taskResult == REACHED_PARALLELISM_LIMIT || taskResult == QUEUE_DRAINED)
+            if (taskResult === REACHED_PARALLELISM_LIMIT || taskResult === QUEUE_DRAINED)
                 break;
             this.startTask(taskResult.key, taskResult.task);
         }
@@ -153,10 +153,10 @@ class AsyncTaskQueue<TaskType> extends TaskQueue<TaskType> {
         executor: TaskExecutor<TaskType>,
         keyParallelism: number,
         overallParallelism: number | null = TaskQueue.NO_LIMIT,
-        progressTracker: ProgressTracker<TaskType> = new ProgressTracker()
+        progressTracker: ProgressTracker<TaskType> = new ProgressTracker(),
     ) {
-        super(taskToKey, keyParallelism, overallParallelism, progressTracker)
-        this.executor = executor
+        super(taskToKey, keyParallelism, overallParallelism, progressTracker);
+        this.executor = executor;
     }
 
     executeTask(key: string, task: TaskType): void {
