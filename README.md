@@ -29,9 +29,9 @@ var options = {
   taskDescriptor: (task) -> task.databaseHost,
   // Async function that executes the given task.
   executor: expensiveDatabaseMigration,
-  // (Up to) how many tasks to execute on a host at a time.
+  // (Up to) how many tasks to execute on a host at a time in parallel.
   keyParallelism: 5,
-  // How many tasks to execute overall. Missing or null means unlimited.
+  // How many tasks to execute overall in parallel. Missing or null means unlimited.
   overallParallelism: 30
 }
 
