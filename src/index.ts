@@ -67,6 +67,7 @@ export abstract class TaskQueue<TaskType> {
         this.tracker = progressTracker;
 
         this.isStarted = false;
+        this.runningCount = {};
         this.enqueuedTasks = {};
         this.availableKeys = new Set<string>();
     }
@@ -111,7 +112,7 @@ export abstract class TaskQueue<TaskType> {
 
     protected startTask(key: string, task: TaskType): void {
         this.tracker.startTask(task);
-        this.runningCount[key] += 1;
+        this.runningCount[key] = (this.runningCount[key] || 0) + 1;
         if (this.keyParallelism > 0 && this.runningCount[key] >= this.keyParallelism) {
             this.availableKeys.delete(key);
         }

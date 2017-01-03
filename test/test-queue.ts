@@ -59,6 +59,7 @@ describe("TaskQueue<TaskType>", () => {
 
     beforeEach(() => {
         queue = new TestQueue(2, 4);
+        queue.run();
     });
 
     it("should immediately start tasks that were enqueued", () => {
