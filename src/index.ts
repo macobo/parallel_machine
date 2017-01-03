@@ -1,7 +1,7 @@
 import { TaskDescriptor, TaskExecutor } from "./common";
 import { AsyncTaskQueue, ProgressTracker, TaskQueue } from "./queue";
 
-interface IParallelMachineOptions<T> {
+export interface IParallelMachineOptions<T> {
     // Function which for each task returns it's key (i.e. hostname)
     taskDescriptor: TaskDescriptor<T>;
     // Async function that executes an action on the target task, calling back once done.

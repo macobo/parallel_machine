@@ -1,5 +1,5 @@
 import { Set } from "core-js/library";
-import _ = require("lodash");
+import * as _ from "lodash";
 import { Queue } from "typescript-collections";
 
 import { QUEUE_DRAINED, REACHED_PARALLELISM_LIMIT, TaskDescriptor, TaskExecutor } from "./common";
