@@ -28,7 +28,7 @@ function expensiveDatabaseMigration(task, callback) {
 
 var options = {
   // Key which we distribute over - in this case the host of the task we're about to run.
-  taskDescriptor: (task) -> task.databaseHost,
+  taskDescriptor: (task) => task.databaseHost,
   // Async function that executes the given task.
   executor: expensiveDatabaseMigration,
   // (Up to) how many tasks to execute on a host at a time in parallel.
