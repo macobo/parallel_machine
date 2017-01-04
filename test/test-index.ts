@@ -79,7 +79,7 @@ describe("parallel_machine", () => {
     });
 
     describe("Random fuzz tests", () => {
-        const mod5 = (n: number) => (n % 5).toString()
+        const mod5 = (n: number) => (n % 5).toString();
 
         it("success case, with data", (done) => {
             const perLetterParallelism = 3;
