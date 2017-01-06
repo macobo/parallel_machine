@@ -1,1 +1,4 @@
 *.tgz
+node_modules
+.vscode
+typings
