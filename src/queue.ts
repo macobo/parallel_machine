@@ -94,7 +94,7 @@ export abstract class TaskQueue<TaskType> {
     }
 
     addAll(tasks: TaskType[]): void {
-        for (let task of tasks)
+        for (const task of tasks)
             this.add(task);
     }
 
@@ -134,7 +134,7 @@ export abstract class TaskQueue<TaskType> {
         if (nextKeyIter.done)
             return QUEUE_DRAINED;
 
-        const key: string = <string> (nextKeyIter.value);
+        const key: string = nextKeyIter.value as string;
         const task: TaskType | undefined = this.enqueuedTasks[key].dequeue();
         if (task === undefined) {
             // If we have done all tasks for this key, it's safe to delete it and attempt to dequeue again.
